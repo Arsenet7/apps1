@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // SonarQube authentication token
-        SONAR_TOKEN = credentials('sonarid')  // Ensure this matches your credential ID in Jenkins
+        SONAR_TOKEN = credentials('arsene-sonar-token')  // Securely using Jenkins credentials
     }
 
     stages {
@@ -19,13 +19,13 @@ pipeline {
             steps {
                 script {
                     // Run SonarQube scan
-                    withSonarQubeEnv('scan') {  // Corrected SonarQube scanner name
+                    withSonarQubeEnv('scan') {  // Correct SonarQube scanner name based on your configuration
                         sh '''
                         sonar-scanner \
                         -Dsonar.projectKey=halloween \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=https://sonarqube.devopseasylearning.uk/ \
-                        -Dsonar.login=$SONAR_TOKEN
+                        -Dsonar.login=$SONAR_TOKEN  // Securely passing the SonarQube token
                         '''
                     }
                 }
