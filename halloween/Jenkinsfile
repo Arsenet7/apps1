@@ -5,7 +5,7 @@ pipeline {
             steps {
                 // Cloning the repository
                 git branch: 'main', 
-                    url: 'git@github.com:Arsenet7/apps1.git'
+                    url: 'https://github.com/Arsenet7/apps1.git'
             }
         }
     }
