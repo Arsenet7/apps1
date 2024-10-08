@@ -19,7 +19,7 @@ pipeline {
             steps {
                 script {
                     // Run SonarQube scan
-                    withSonarQubeEnv('scan') {  // Correct SonarQube scanner name based on your configuration
+                    withSonarQubeEnv('halloween') {  // Correct SonarQube scanner name based on your configuration
                         sh '''
                         sonar-scanner \
                         -Dsonar.projectKey=halloween \
