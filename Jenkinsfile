@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // SonarQube authentication token
-        SONAR_TOKEN = credentials('arsene-sonar-token')  // Securely using Jenkins credentials
+        SONAR_TOKEN = credentials('sonarid')  // Securely using Jenkins credentials
     }
 
     stages {
