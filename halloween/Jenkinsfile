@@ -5,7 +5,6 @@ pipeline {
             steps {
                 // Cloning the repository
                 git branch: 'main', 
-                    credentialsId: 'github-ssh', 
                     url: 'git@github.com:Arsenet7/apps1.git'
             }
         }
