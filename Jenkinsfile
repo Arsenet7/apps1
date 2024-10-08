@@ -25,7 +25,7 @@ pipeline {
                         -Dsonar.projectKey=halloween \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=https://sonarqube.devopseasylearning.uk/ \
-                        -Dsonar.login=sonarid
+                        
                         '''
                     }
                 }
