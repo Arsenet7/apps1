@@ -19,7 +19,7 @@ pipeline {
                         sonar-scanner \
                         -Dsonar.projectKey=apps1 \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=http://your-sonarqube-server-url \
+                        -Dsonar.host.url=https://sonarqube.devopseasylearning.uk/ \
                         -Dsonar.login=${SONAR_TOKEN}
                         '''
                     }
