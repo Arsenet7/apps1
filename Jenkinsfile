@@ -25,7 +25,7 @@ pipeline {
                         -Dsonar.projectKey=apps1 \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=https://sonarqube.devopseasylearning.uk/ \
-                        -Dsonar.login=${SONAR_TOKEN}
+                        -Dsonar.login=sonarid
                         '''
                     }
                 }
