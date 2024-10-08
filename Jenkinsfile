@@ -19,10 +19,10 @@ pipeline {
             steps {
                 script {
                     // Run SonarQube scan
-                    withSonarQubeEnv('SonarQube-DevOps') {  // Ensure the correct SonarQube installation ID
+                    withSonarQubeEnv('SonarQube') {  // Ensure the correct SonarQube installation ID
                         sh '''
                         sonar-scanner \
-                        -Dsonar.projectKey=apps1 \
+                        -Dsonar.projectKey=halloween \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=https://sonarqube.devopseasylearning.uk/ \
                         -Dsonar.login=sonarid
