@@ -39,30 +39,18 @@ pipeline {
             }
         }
 
-        stage('Install Trivy') {
-            steps {
-                script {
-                    sh '''
-                    sudo apt-get update
-                    sudo apt-get install -y wget apt-transport-https gnupg lsb-release
-                    wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-                    echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-                    sudo apt-get update
-                    sudo apt-get install -y trivy
-                    '''
-                }
-            }
-        }
-
+        // Use the containerized version of Trivy to perform the scan
         stage('Trivy Scan') {
             steps {
                 script {
                     try {
-                        sh """
-                        trivy image --format table \
-                        --output trivy-results.txt \
-                        ${DOCKER_IMAGE}:${BUILD_NUMBER}
-                        """
+                        docker.image('aquasec/trivy:latest').inside {
+                            sh """
+                            trivy image --format table \
+                            --output trivy-results.txt \
+                            ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                            """
+                        }
                     } catch (Exception e) {
                         echo "Trivy scan failed: ${e.message}"
                         currentBuild.result = 'UNSTABLE'
