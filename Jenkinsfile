@@ -17,7 +17,7 @@ pipeline {
         stage('Code Scan with SonarQube') {
             steps {
                 script {
-                    withSonarQubeEnv('SonarQubeServer') {  // Make sure this matches your SonarQube server name in Jenkins
+                    withSonarQubeEnv('sonar') {  // Make sure this matches your SonarQube server name in Jenkins
                         sh """
                         ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=halloween \
