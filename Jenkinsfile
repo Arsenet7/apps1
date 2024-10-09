@@ -36,11 +36,25 @@ pipeline {
                 script {
                     // Build the Docker image
                     docker.build("${DOCKER_IMAGE}:${BUILD_NUMBER}", "./")
-                    
-                    // If you need to push the image to a registry, uncomment and modify the following line:
-                    // docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                    //     docker.image("${DOCKER_IMAGE}:${BUILD_NUMBER}").push()
-                    // }
+                }
+            }
+        }
+
+        stage('Trivy Scan') {
+            steps {
+                script {
+                    // Run Trivy scan
+                    sh """
+                    trivy image --format table \
+                    --output trivy-results.txt \
+                    ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                    """
+                }
+            }
+            post {
+                always {
+                    // Archive Trivy scan results
+                    archiveArtifacts artifacts: 'trivy-results.txt', fingerprint: true
                 }
             }
         }
@@ -51,10 +65,9 @@ pipeline {
             echo 'Pipeline completed'
         }
         success {
-            echo 'Code scan and Docker image build completed successfully.'
+            echo 'Code scan, Docker image build, and Trivy scan completed successfully.'
         }
         failure {
             echo 'Pipeline failed. Please check the logs for more details.'
         }
     }
-}
