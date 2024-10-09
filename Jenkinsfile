@@ -35,7 +35,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    docker.build("${DOCKER_IMAGE}:${BUILD_NUMBER}", "./halloween")
+                    docker.build("${DOCKER_IMAGE}:${BUILD_NUMBER}", "./")
                     
                     // If you need to push the image to a registry, uncomment and modify the following line:
                     // docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
