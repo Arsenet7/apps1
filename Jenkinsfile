@@ -83,6 +83,20 @@ pipeline {
                 }
             }
         }
+
+        // Stage to log in to DockerHub and push the application image
+        stage('Log in and Push to DockerHub') {
+            steps { 
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-ars-id', 
+                usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh '''
+                        # Logging into DockerHub and pushing the built Docker image
+                        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD 
+                        docker push ${DOCKER_IMAGE}:${BUILD_NUMBER} 
+                    '''
+                }
+            }
+        }
     }
 
     post {
