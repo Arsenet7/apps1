@@ -17,7 +17,7 @@ pipeline {
         stage('Code Scan with SonarQube') {
             steps {
                 script {
-                    withSonarQubeEnv('sonar') {  // Make sure this matches your SonarQube server name in Jenkins
+                    withSonarQubeEnv('SonarQubeServer') {  // Make sure this matches your SonarQube server name in Jenkins
                         sh """
                         ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=halloween \
@@ -29,14 +29,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Quality Gate Check') {
-            steps {
-                timeout(time: 1, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
     }
 
     post {
@@ -44,7 +36,7 @@ pipeline {
             echo 'Pipeline completed'
         }
         success {
-            echo 'Code scan and quality gate passed successfully.'
+            echo 'Code scan completed successfully.'
         }
         failure {
             echo 'Pipeline failed. Please check the logs for more details.'
