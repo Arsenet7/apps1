@@ -18,7 +18,7 @@ pipeline {
         stage('Code Scan with SonarQube') {
             steps {
                 script {
-                    withSonarQubeEnv('sonar') {  // Make sure this matches your SonarQube server name in Jenkins
+                    withSonarQubeEnv('sonar') {
                         sh """
                         ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=halloween \
@@ -34,8 +34,22 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
                     docker.build("${DOCKER_IMAGE}:${BUILD_NUMBER}", "./")
+                }
+            }
+        }
+
+        stage('Install Trivy') {
+            steps {
+                script {
+                    sh '''
+                    sudo apt-get update
+                    sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+                    wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+                    echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+                    sudo apt-get update
+                    sudo apt-get install -y trivy
+                    '''
                 }
             }
         }
@@ -43,18 +57,21 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 script {
-                    // Run Trivy scan
-                    sh """
-                    trivy image --format table \
-                    --output trivy-results.txt \
-                    ${DOCKER_IMAGE}:${BUILD_NUMBER}
-                    """
+                    try {
+                        sh """
+                        trivy image --format table \
+                        --output trivy-results.txt \
+                        ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                        """
+                    } catch (Exception e) {
+                        echo "Trivy scan failed: ${e.message}"
+                        currentBuild.result = 'UNSTABLE'
+                    }
                 }
             }
             post {
                 always {
-                    // Archive Trivy scan results
-                    archiveArtifacts artifacts: 'trivy-results.txt', fingerprint: true
+                    archiveArtifacts artifacts: 'trivy-results.txt', allowEmptyArchive: true, fingerprint: true
                 }
             }
         }
@@ -63,9 +80,24 @@ pipeline {
     post {
         always {
             echo 'Pipeline completed'
+            // Clean up Docker images
+            script {
+                try {
+                    sh "docker rmi ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                    // Remove any dangling images
+                    sh 'docker image prune -f'
+                } catch (Exception e) {
+                    echo "Cleanup failed: ${e.message}"
+                }
+            }
+            // Clean workspace
+            cleanWs()
         }
         success {
             echo 'Code scan, Docker image build, and Trivy scan completed successfully.'
+        }
+        unstable {
+            echo 'Pipeline completed with unstable status. Check Trivy scan results.'
         }
         failure {
             echo 'Pipeline failed. Please check the logs for more details.'
