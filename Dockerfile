@@ -12,7 +12,7 @@ VOLUME /saves
 #copy from host to the container
 COPY . /saves
 #Installing useful packages
-Run apt install -y unzip \
+RUN apt install -y unzip \
     vim 
 
 #Container working directory
