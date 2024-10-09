@@ -19,11 +19,11 @@ pipeline {
             steps {
                 script {
                     // Run SonarQube scan
-                    withSonarQubeEnv('halloween') {  // Correct SonarQube scanner name based on your configuration
+                    withSonarQubeEnv('scan') {  // Correct SonarQube scanner name based on your configuration
                         sh '''
                         sonar-scanner \
                         -Dsonar.projectKey=halloween \
-                        -Dsonar.sources=. \
+                        -Dsonar.sources=./halloween \
                         -Dsonar.host.url=https://sonarqube.devopseasylearning.uk/ \
                         -Dsonar.login=$SONAR_TOKEN  // Securely passing the SonarQube token
                         '''
