@@ -2,14 +2,13 @@ pipeline {
     agent { label 'master' }
 
     environment {
-        // SonarQube authentication token
-        SONAR_TOKEN = credentials('sonarid')  // Securely using Jenkins credentials
+        SONAR_TOKEN = credentials('sonarid')
+        SCANNER_HOME = tool 'scan'
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                // Cloning the GitHub repository from the main branch
                 git branch: 'main', 
                     url: 'https://github.com/Arsenet7/apps1.git'
             }
@@ -18,15 +17,14 @@ pipeline {
         stage('Code Scan with SonarQube') {
             steps {
                 script {
-                    // Run SonarQube scan
-                    withSonarQubeEnv('scan') {  // Correct SonarQube scanner name based on your configuration
-                        sh '''
-                        sonar-scanner \
+                    withSonarQubeEnv('sonar') {  // Make sure this matches your SonarQube server name in Jenkins
+                        sh """
+                        ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=halloween \
                         -Dsonar.sources=./halloween \
                         -Dsonar.host.url=https://sonarqube.devopseasylearning.uk/ \
-                        -Dsonar.login=$SONAR_TOKEN  // Securely passing the SonarQube token
-                        '''
+                        -Dsonar.login=$SONAR_TOKEN
+                        """
                     }
                 }
             }
@@ -34,11 +32,8 @@ pipeline {
 
         stage('Quality Gate Check') {
             steps {
-                script {
-                    // Waiting for SonarQube quality gate result
-                    timeout(time: 1, unit: 'MINUTES') {
-                        waitForQualityGate abortPipeline: true
-                    }
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
