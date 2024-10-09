@@ -8,6 +8,25 @@ pipeline {
     }
 
     stages {
+        // Clean workspace and remove any Docker images at the start of the pipeline
+        stage('Clean Workspace and Docker Images') {
+            steps {
+                script {
+                    echo 'Cleaning workspace and removing any existing Docker images...'
+                    // Clean workspace
+                    cleanWs()
+                    // Remove existing Docker images related to the project
+                    try {
+                        sh "docker rmi -f ${DOCKER_IMAGE}:${BUILD_NUMBER} || true"
+                    } catch (Exception e) {
+                        echo "No existing Docker images to remove."
+                    }
+                    // Remove any dangling images
+                    sh 'docker image prune -f || true'
+                }
+            }
+        }
+
         stage('Clone Repository') {
             steps {
                 git branch: 'main', 
@@ -39,12 +58,13 @@ pipeline {
             }
         }
 
-        // Use the containerized version of Trivy to perform the scan
+        // Use Trivy container with overridden entrypoint to scan the Docker image
         stage('Trivy Scan') {
             steps {
                 script {
                     try {
-                        docker.image('aquasec/trivy:latest').inside {
+                        docker.image('aquasec/trivy:latest')
+                              .inside("--entrypoint=''") {
                             sh """
                             trivy image --format table \
                             --output trivy-results.txt \
@@ -88,7 +108,4 @@ pipeline {
             echo 'Pipeline completed with unstable status. Check Trivy scan results.'
         }
         failure {
-            echo 'Pipeline failed. Please check the logs for more details.'
-        }
-    }
-}
+            echo 'Pipeline failed. Please
