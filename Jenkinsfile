@@ -4,6 +4,7 @@ pipeline {
     environment {
         SONAR_TOKEN = credentials('sonarid')
         SCANNER_HOME = tool 'scan'
+        DOCKER_IMAGE = 'arsenet10/halloween-image'
     }
 
     stages {
@@ -29,6 +30,20 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    docker.build("${DOCKER_IMAGE}:${BUILD_NUMBER}", "./halloween")
+                    
+                    // If you need to push the image to a registry, uncomment and modify the following line:
+                    // docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                    //     docker.image("${DOCKER_IMAGE}:${BUILD_NUMBER}").push()
+                    // }
+                }
+            }
+        }
     }
 
     post {
@@ -36,7 +51,7 @@ pipeline {
             echo 'Pipeline completed'
         }
         success {
-            echo 'Code scan completed successfully.'
+            echo 'Code scan and Docker image build completed successfully.'
         }
         failure {
             echo 'Pipeline failed. Please check the logs for more details.'
