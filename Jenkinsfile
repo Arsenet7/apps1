@@ -43,7 +43,7 @@ pipeline {
                         -Dsonar.projectKey=halloween \
                         -Dsonar.sources=./halloween \
                         -Dsonar.host.url=https://sonarqube.devopseasylearning.uk/ \
-                        -Dsonar.login=$SONAR_TOKEN
+                        -Dsonar.login=${SONAR_TOKEN}
                         """
                     }
                 }
@@ -91,9 +91,9 @@ pipeline {
             // Clean up Docker images
             script {
                 try {
-                    sh "docker rmi ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                    sh "docker rmi ${DOCKER_IMAGE}:${BUILD_NUMBER} || true"
                     // Remove any dangling images
-                    sh 'docker image prune -f'
+                    sh 'docker image prune -f || true'
                 } catch (Exception e) {
                     echo "Cleanup failed: ${e.message}"
                 }
@@ -108,4 +108,7 @@ pipeline {
             echo 'Pipeline completed with unstable status. Check Trivy scan results.'
         }
         failure {
-            echo 'Pipeline failed. Please
+            echo 'Pipeline failed. Please check the logs for more details.'
+        }
+    }
+}
